@@ -1,13 +1,512 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>мой сайт</title>
+    <title>кликер · поймай мишень</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(145deg, #1b2b3f 0%, #223b55 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            touch-action: manipulation;
+        }
+        .game-container {
+            background: rgba(18, 28, 40, 0.8);
+            backdrop-filter: blur(4px);
+            border-radius: 3.5rem 3.5rem 2.5rem 2.5rem;
+            padding: 2rem 2rem 2.5rem;
+            box-shadow: 0 25px 40px rgba(0, 0, 0, 0.6), inset 0 0 2px #a0c0e0;
+            border: 1px solid #4f6e8c;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            background: #0f1a24;
+            padding: 1.2rem 2rem;
+            border-radius: 4rem;
+            margin-bottom: 2rem;
+            color: #eaf4ff;
+            box-shadow: inset 0 4px 6px rgba(0,0,0,0.6), 0 2px 0 #3d5e7a;
+            gap: 1.5rem;
+            border: 1px solid #2d4b66;
+        }
+        .score-box, .timer-box {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-weight: 600;
+            font-size: 1.6rem;
+            letter-spacing: 0.5px;
+        }
+        .score-box span, .timer-box span {
+            background: #1f3243;
+            padding: 0.5rem 1.2rem;
+            border-radius: 3rem;
+            font-size: 2rem;
+            line-height: 1;
+            min-width: 4.5rem;
+            text-align: center;
+            color: #f2d53c;
+            text-shadow: 0 2px 3px black;
+            border: 1px solid #5b7f9c;
+            box-shadow: inset 0 -2px 3px #0b1219;
+            font-family: 'Courier New', monospace;
+        }
+        .timer-box span {
+            color: #a3dcff;
+        }
+        .play-area {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            background: #1e3347;
+            border-radius: 3rem;
+            box-shadow: inset 0 0 30px #0a141f, 0 20px 25px -8px black;
+            border: 3px solid #376280;
+            cursor: crosshair;
+            overflow: hidden;
+            touch-action: none;  /* предотвращаем прокрутку на тач-устройствах */
+        }
+        .target {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, #ffd966, #e63946);
+            border-radius: 50%;
+            box-shadow: 0 10px 0 #921d2c, 0 0 20px #ffb3b3;
+            border: 3px solid #ffeeaa;
+            transform: translate(-50%, -50%);
+            transition: transform 0.08s ease, box-shadow 0.1s;
+            will-change: left, top;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .target:active {
+            transform: translate(-50%, -50%) scale(0.86);
+            box-shadow: 0 4px 0 #921d2c, 0 0 30px #ffdd88;
+        }
+        /* мишень в момент попадания (быстрый визуальный эффект) */
+        .target-hit {
+            background: radial-gradient(circle at 30% 30%, #ffffb0, #ff7b7b);
+            box-shadow: 0 0 40px white;
+        }
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 1.8rem;
+            margin-top: 2rem;
+            align-items: center;
+        }
+        button {
+            background: #1c364b;
+            border: none;
+            font-size: 1.7rem;
+            font-weight: bold;
+            padding: 0.8rem 2.2rem;
+            border-radius: 4rem;
+            color: #d5edff;
+            box-shadow: 0 8px 0 #0c1a26, 0 10px 15px rgba(0,0,0,0.4);
+            cursor: pointer;
+            transition: 0.06s linear;
+            border: 1px solid #3a6182;
+            letter-spacing: 1px;
+            touch-action: manipulation;
+        }
+        button:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #0c1a26, 0 7px 12px black;
+        }
+        button:disabled {
+            opacity: 0.5;
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #0c1a26;
+            pointer-events: none;
+        }
+        .status-message {
+            font-size: 1.3rem;
+            background: #0f1e2c;
+            padding: 0.5rem 1.8rem;
+            border-radius: 3rem;
+            color: #bedcff;
+            border: 1px solid #2a577b;
+            min-width: 150px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .footer {
+            margin-top: 1.2rem;
+            display: flex;
+            justify-content: center;
+            color: #7f9fbf;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        @media (max-width: 700px) {
+            .play-area { width: 460px; height: 340px; }
+            .target { width: 70px; height: 70px; }
+            .game-container { padding: 1.2rem; }
+        }
+        @media (max-width: 500px) {
+            .play-area { width: 94vw; height: 66vw; }
+            .header { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+            .score-box, .timer-box { justify-content: space-between; }
+        }
+    </style>
 </head>
 <body>
-        <h1>привет</h1>
-        <img src="42f6a300e9de8d1aa71612131a9c5ee3.jpg" alt="привет" height="100" width="100">
-        <h1>привет</h1>
+<div class="game-container">
+    <div class="header">
+        <div class="score-box">
+            🎯 СЧЁТ <span id="scoreDisplay">0</span>
+        </div>
+        <div class="timer-box">
+            ⏳ ВРЕМЯ <span id="timerDisplay">15</span>
+        </div>
+    </div>
+
+    <div class="play-area" id="playArea">
+        <div class="target" id="target" style="left: 200px; top: 200px;"></div>
+    </div>
+
+    <div class="control-panel">
+        <button id="restartBtn">⟳ СТАРТ</button>
+        <div class="status-message" id="statusMsg">▶ жми старт</div>
+    </div>
+    <div class="footer">
+        ⚡ щёлкай по кругу — зарабатывай очки
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ------ элементы DOM ------
+        const target = document.getElementById('target');
+        const playArea = document.getElementById('playArea');
+        const scoreSpan = document.getElementById('scoreDisplay');
+        const timerSpan = document.getElementById('timerDisplay');
+        const restartBtn = document.getElementById('restartBtn');
+        const statusMsg = document.getElementById('statusMsg');
+
+        // ------ игровые переменные ------
+        let score = 0;
+        let timeLeft = 15;             // секунд
+        let gameActive = false;         // игра запущена?
+        let timerInterval = null;
+        let moveTimeout = null;         // для автоматического перемещения
+
+        // границы игрового поля (чтобы мишень не уходила за край)
+        const getAreaRect = () => playArea.getBoundingClientRect();
+        const targetSize = 80; // ширина/высота мишени в px (смотри CSS)
+
+        // ------ обновление счёта на экране ------
+        function updateScoreUI() {
+            scoreSpan.textContent = score;
+        }
+
+        // ------ обновление таймера ------
+        function updateTimerUI() {
+            timerSpan.textContent = timeLeft;
+        }
+
+        // ------ остановка всех игровых процессов (таймер + запланированное движение) ------
+        function stopGameProcesses() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            if (moveTimeout) {
+                clearTimeout(moveTimeout);
+                moveTimeout = null;
+            }
+        }
+
+        // ------ конец игры (победа/время вышло) ------
+        function gameOver() {
+            if (!gameActive) return; // уже неактивна
+            gameActive = false;
+            stopGameProcesses();
+            statusMsg.textContent = '⏰ время вышло';
+            // оставляем мишень на месте, но клик больше не приносит очков (блокировка через gameActive)
+        }
+
+        // ------ переместить мишень в случайную позицию в пределах поля ------
+        function moveTargetRandom() {
+            if (!gameActive) return; // если игра остановлена — не двигаем
+
+            const rect = playArea.getBoundingClientRect();
+            // доступные координаты с учётом того, что центр мишени не должен выходить за край
+            // левая граница = minX = targetSize/2, правая = width - targetSize/2
+            const half = targetSize / 2;
+            const minX = half;
+            const maxX = rect.width - half;
+            const minY = half;
+            const maxY = rect.height - half;
+
+            // защита, если поле вдруг стало меньше размера мишени (почти невозможно)
+            if (maxX <= minX || maxY <= minY) {
+                // ставим примерно по центру
+                target.style.left = (rect.width / 2) + 'px';
+                target.style.top = (rect.height / 2) + 'px';
+            } else {
+                const randomX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
+                const randomY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+                target.style.left = randomX + 'px';
+                target.style.top = randomY + 'px';
+            }
+
+            // небольшой визуальный "толчок" — убираем класс эффекта, если был
+            target.classList.remove('target-hit');
+
+            // планируем следующее перемещение через 1.1–1.6 секунды (рандом)
+            if (gameActive) {
+                const nextMoveDelay = Math.floor(Math.random() * 500) + 1100; // 1100-1600 мс
+                if (moveTimeout) clearTimeout(moveTimeout);
+                moveTimeout = setTimeout(() => {
+                    moveTargetRandom();
+                }, nextMoveDelay);
+            }
+        }
+
+        // ------ обработка клика по мишени ------
+        function handleTargetClick(e) {
+            e.stopPropagation(); // не всплываем на площадку
+            if (!gameActive) return; // игра не запущена или завершена
+
+            // увеличиваем счёт
+            score++;
+            updateScoreUI();
+
+            // быстрая анимация попадания
+            target.classList.add('target-hit');
+            setTimeout(() => {
+                target.classList.remove('target-hit');
+            }, 120);
+
+            // перемещаем мишень сразу после попадания (и сбрасываем таймер автоперемещения)
+            if (gameActive) {
+                // отменяем запланированное старое перемещение
+                if (moveTimeout) {
+                    clearTimeout(moveTimeout);
+                    moveTimeout = null;
+                }
+                // перемещаем на новую позицию
+                moveTargetRandom();
+            }
+        }
+
+        // ------ обработка случайного клика по фону (штрафа нет, просто сдвиг по желанию) ------
+        function handleAreaClick(e) {
+            // если кликнули именно на фон (не на цель)
+            if (e.target === playArea) {
+                if (!gameActive) return;
+                // можно тоже двигать цель, чтобы игрок не скучал (опционально, но добавим динамики)
+                if (gameActive) {
+                    if (moveTimeout) clearTimeout(moveTimeout);
+                    moveTargetRandom();
+                }
+            }
+        }
+
+        // ------ установить начальное состояние (новая игра) ------
+        function resetAndStart() {
+            // останавливаем всё
+            stopGameProcesses();
+            gameActive = false; // на время сброса
+
+            // сбрасываем переменные
+            score = 0;
+            timeLeft = 15;
+            updateScoreUI();
+            updateTimerUI();
+
+            // ставим мишень в центр (можно случайно, но лучше в центр)
+            const rect = playArea.getBoundingClientRect();
+            const half = targetSize / 2;
+            target.style.left = (rect.width / 2) + 'px';
+            target.style.top = (rect.height / 2) + 'px';
+            target.classList.remove('target-hit');
+
+            // активируем игру
+            gameActive = true;
+            statusMsg.textContent = '🔫 игра идет';
+
+            // запускаем таймер обратного отсчёта
+            timerInterval = setInterval(() => {
+                if (!gameActive) {
+                    // если игра уже закончена, но интервал почему-то жив (лишняя защита)
+                    if (timerInterval) clearInterval(timerInterval);
+                    return;
+                }
+
+                timeLeft--;
+                updateTimerUI();
+
+                if (timeLeft <= 0) {
+                    timeLeft = 0;
+                    updateTimerUI();
+                    gameOver();
+                }
+            }, 1000);
+
+            // первое автоматическое перемещение через 1.3 сек (после старта)
+            if (moveTimeout) clearTimeout(moveTimeout);
+            moveTimeout = setTimeout(() => {
+                if (gameActive) moveTargetRandom();
+            }, 1300);
+        }
+
+        // ------ обработчик изменения размера окна — корректируем позицию, если мишень уползла за границы ------
+        function adjustTargetPosition() {
+            if (!playArea) return;
+            const rect = playArea.getBoundingClientRect();
+            const half = targetSize / 2;
+            const minX = half;
+            const maxX = rect.width - half;
+            const minY = half;
+            const maxY = rect.height - half;
+
+            // получаем текущие координаты (числа)
+            let left = parseFloat(target.style.left);
+            let top = parseFloat(target.style.top);
+
+            // если NaN (ещё не заданы) — ставим в центр
+            if (isNaN(left) || isNaN(top)) {
+                target.style.left = (rect.width / 2) + 'px';
+                target.style.top = (rect.height / 2) + 'px';
+                return;
+            }
+
+            // корректировка, если вылетело за границы (например, после ресайза)
+            let newLeft = left;
+            let newTop = top;
+            if (left < minX) newLeft = minX;
+            if (left > maxX) newLeft = maxX;
+            if (top < minY) newTop = minY;
+            if (top > maxY) newTop = maxY;
+
+            if (newLeft !== left || newTop !== top) {
+                target.style.left = newLeft + 'px';
+                target.style.top = newTop + 'px';
+            }
+        }
+
+        // ------ подписка на события ------
+        target.addEventListener('click', handleTargetClick);
+        playArea.addEventListener('click', handleAreaClick);
+
+        // кнопка рестарта
+        restartBtn.addEventListener('click', () => {
+            resetAndStart();
+        });
+
+        // при двойном клике на область не должно выделяться (мелкое улучшение)
+        playArea.addEventListener('mousedown', (e) => e.preventDefault());
+        target.addEventListener('mousedown', (e) => e.preventDefault());
+
+        // ресайз окна — подгоняем позицию мишени, чтобы всегда была видна
+        window.addEventListener('resize', () => {
+            adjustTargetPosition();
+        });
+
+        // дополнительно: при загрузке страницы поместим мишень в центр
+        window.addEventListener('load', () => {
+            // ставим начальное состояние (не активное)
+            gameActive = false;
+            const rect = playArea.getBoundingClientRect();
+            target.style.left = (rect.width / 2) + 'px';
+            target.style.top = (rect.height / 2) + 'px';
+            updateScoreUI();
+            updateTimerUI();
+            statusMsg.textContent = '▶ жми старт';
+        });
+
+        // небольшой фикс для мобильных: предотвращаем всплытие касаний, зумирование
+        target.addEventListener('touchstart', (e) => {
+            e.preventDefault();  // не даём зумировать или скроллить
+            // вручную эмулируем клик, чтобы обработчик click тоже сработал (на мобильных click запаздывает)
+            // но так как click в итоге тоже придет — можно не дублировать. Достаточно предотвратить действие по умолчанию.
+        });
+        target.addEventListener('touchstart', (e) => {
+            // имитируем клик сразу для отзывчивости, но чтобы не задваивать,
+            // воспользуемся тем, что click приходит позже, и вызовем наш обработчик вручную.
+            // но чтобы не было двойного начисления — отключаем стандартный click на touch? нет, лучше так:
+            // на мобильных тач вызывает и touch, и click, поэтому оставим только click, а touchstart просто предотвращает скролл.
+            // ничего лишнего.
+        });
+        // дополнительно: для мобильных запускаем handleTargetClick напрямую (аккуратно)
+        target.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            // эмулируем клик (но проверим, активна ли игра)
+            if (!gameActive) return;
+            // увеличим счёт и переместим (как в handleTargetClick)
+            score++;
+            updateScoreUI();
+            target.classList.add('target-hit');
+            setTimeout(() => target.classList.remove('target-hit'), 120);
+            if (gameActive) {
+                if (moveTimeout) clearTimeout(moveTimeout);
+                moveTargetRandom();
+            }
+        });
+
+        // чтобы на мобильных не срабатывал дважды, добавим флаг-костыль? обычно не нужно,
+        // но если touch и click сработают одновременно, очки начислятся дважды. Поэтому:
+        // отключаем click-обработчик на время? лучше сделаем проверку через установку флага "только что обработано касание"
+        // но для простоты: click мы оставляем, и на мобиле будут оба. Поэтому в touchstart сразу добавляем вызов, но ставим небольшую блокировку:
+        let touchProcessed = false;
+        target.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!gameActive || touchProcessed) return;
+            touchProcessed = true;
+            setTimeout(() => touchProcessed = false, 200); // разблокируем через 200мс
+
+            // начисляем очки
+            score++;
+            updateScoreUI();
+            target.classList.add('target-hit');
+            setTimeout(() => target.classList.remove('target-hit'), 120);
+            if (gameActive) {
+                if (moveTimeout) clearTimeout(moveTimeout);
+                moveTargetRandom();
+            }
+        });
+
+        // а click на мишени оставляем только для мышки, на таче он будет проигнорирован из-за preventDefault?
+        // не совсем. Оставим как есть, но добавим защиту от двойного начисления в click-обработчике:
+        const originalClick = handleTargetClick;
+        target.removeEventListener('click', handleTargetClick);
+        target.addEventListener('click', (e) => {
+            // если мы на тач-устройстве, touchstart уже обработал клик. используем флаг, чтобы не начислить повторно
+            if (touchProcessed) {
+                // возможно, клик пришел следом за тачем — пропускаем
+                return;
+            }
+            originalClick(e);
+        });
+
+        // также при рестарте сбрасываем защитный флаг
+        const originalReset = resetAndStart;
+        resetAndStart = function() {
+            touchProcessed = false;
+            originalReset.call(this);
+        }.bind(this);
+        restartBtn.removeEventListener('click', resetAndStart);
+        restartBtn.addEventListener('click', resetAndStart);
+
+        // также при рестарте из load и т.д. ок
+        // завершено
+    })();
+</script>
 </body>
 </html>
