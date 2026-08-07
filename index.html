@@ -3,455 +3,1015 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ПРОКАЧКА · кликер с магазином</title>
+    <title>Новая Я | Салон красоты</title>
     <style>
+        /* ---------- БАЗА ---------- */
         * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-            user-select: none;
-        }
-        body {
-            min-height: 100vh;
             margin: 0;
-            background: linear-gradient(45deg, #0b1c2f, #1d3a4e);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .game-wrapper {
-            max-width: 800px;
-            width: 100%;
-            background: rgba(18, 34, 48, 0.8);
-            backdrop-filter: blur(10px);
-            border-radius: 4rem 4rem 3rem 3rem;
-            padding: 2rem 2rem 2.5rem;
-            box-shadow: 0 30px 40px rgba(0,0,0,0.7), inset 0 0 3px #87b9e9;
-            border: 1px solid #38658b;
+
+        html {
+            scroll-behavior: smooth;
         }
-        /* шапка с ресурсами */
-        .resources {
-            display: flex;
-            justify-content: space-between;
-            background: #0e1f2b;
-            padding: 1.2rem 2rem;
-            border-radius: 6rem;
-            margin-bottom: 2rem;
-            border: 1px solid #2f5f82;
-            box-shadow: inset 0 5px 5px rgba(0,0,0,0.7), 0 4px 0 #1a3f55;
-            color: white;
-            font-weight: bold;
-            flex-wrap: wrap;
-            gap: 15px;
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #fff;
+            background: #0b0b0b;
+            line-height: 1.5;
         }
-        .res-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.5rem;
-            background: #0b1923;
-            padding: 0.4rem 1.6rem;
-            border-radius: 3rem;
-            border: 1px solid #3e6d8f;
-        }
-        .res-item span {
-            background: #1c3343;
-            padding: 0.3rem 1.2rem;
-            border-radius: 2rem;
-            font-size: 2rem;
-            line-height: 1;
-            color: #f9d77e;
-            text-shadow: 0 3px 3px black;
-            font-family: 'Courier New', monospace;
-            border: 1px solid #618aa9;
-            min-width: 80px;
-            text-align: center;
-        }
-        .level-badge {
-            background: #8a6f2c;
-            color: #ffefc0;
-            font-size: 1.5rem;
-            padding: 0.4rem 1.8rem;
-            border-radius: 3rem;
-            border: 1px solid #f3b33d;
-            box-shadow: 0 0 12px #ffb347;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        /* главная кликабельная зона */
-        .click-area {
-            background: #1b3f57;
-            border-radius: 4rem;
-            padding: 2rem;
-            margin-bottom: 2.5rem;
-            border: 4px solid #68a2cf;
-            box-shadow: inset 0 -10px 0 #0e2c3b, 0 18px 25px -8px black;
-            transition: 0.1s;
-        }
-        .click-btn {
-            width: 100%;
-            aspect-ratio: 3/1;
-            background: radial-gradient(circle at 40% 40%, #ffe484, #d79b1a);
-            border: none;
-            border-radius: 10rem;
-            font-size: 3.2rem;
-            font-weight: 800;
-            color: #271f0a;
-            text-shadow: 0 3px 5px #ffdd99;
-            box-shadow: 0 18px 0 #9e681c, 0 20px 25px black;
-            cursor: pointer;
-            transition: 0.06s linear;
-            border: 2px solid #ffd966;
-            letter-spacing: 3px;
-            touch-action: manipulation;
-        }
-        .click-btn:active {
-            transform: translateY(12px);
-            box-shadow: 0 6px 0 #9e681c, 0 12px 25px black;
-        }
-        .click-btn:disabled {
-            opacity: 0.5;
-            transform: translateY(8px);
-            box-shadow: 0 8px 0 #7b5019;
-            pointer-events: none;
-        }
-        /* магазин и улучшения */
-        .shop-header {
+
+        /* ---------- НАВИГАЦИЯ ---------- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0.8rem 2rem;
+            background: rgba(11, 11, 11, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 215, 200, 0.06);
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
-            color: #b1dcfd;
-            font-size: 1.8rem;
-            margin-bottom: 1.2rem;
-            padding: 0 10px;
+            align-items: center;
+            transition: all 0.3s ease;
         }
-        .upgrades-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 20px;
-            margin-top: 15px;
+
+        .navbar .logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: #f5edea;
+            text-decoration: none;
         }
-        .upgrade-card {
-            background: #153645;
-            border-radius: 2.5rem;
-            padding: 1.4rem 1rem 1.8rem;
-            border: 2px solid #2b6c93;
-            box-shadow: 0 9px 0 #0e2835, 0 6px 15px black;
+
+        .navbar .logo span {
+            background: linear-gradient(135deg, #e8c8b8, #d4a08a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.8rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #c9b8b0;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: 0.3s ease;
+            position: relative;
+            letter-spacing: 0.2px;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #d4a08a, #e8c8b8);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #f5edea;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* ---------- ГЛАВНЫЙ ЭКРАН (HERO) ---------- */
+        .hero {
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
             text-align: center;
-            transition: 0.1s;
-            color: #e2f0ff;
+            padding: 6rem 2rem 4rem;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(60, 30, 40, 0.6) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(40, 20, 30, 0.5) 0%, transparent 50%),
+                linear-gradient(180deg, #0a0707 0%, #1a0f12 40%, #0d0a0a 100%),
+                url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center 30%;
+            background-attachment: fixed;
+            position: relative;
         }
-        .upgrade-card h3 {
-            font-size: 1.7rem;
-            margin: 0 0 8px;
-            color: #ffd966;
-        }
-        .upgrade-desc {
-            font-size: 1.1rem;
-            margin-bottom: 12px;
-            background: #0d2b3b;
-            padding: 5px 12px;
-            border-radius: 3rem;
-            width: fit-content;
-        }
-        .stat-row {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            font-size: 1.4rem;
-            font-weight: bold;
-            background: #102a35;
-            padding: 6px 18px;
-            border-radius: 3rem;
-            margin: 8px 0;
-            border: 1px solid #3f84a5;
-        }
-        .buy-btn {
-            background: #246b46;
-            border: none;
-            font-size: 1.8rem;
-            font-weight: bold;
-            padding: 0.8rem 2.2rem;
-            border-radius: 4rem;
-            color: #ebffdb;
-            box-shadow: 0 7px 0 #124b2f, 0 6px 12px black;
-            cursor: pointer;
-            transition: 0.05s linear;
-            margin-top: 10px;
-            width: 100%;
-            border: 1px solid #6fc18b;
-            touch-action: manipulation;
-        }
-        .buy-btn:active {
-            transform: translateY(5px);
-            box-shadow: 0 2px 0 #124b2f, 0 6px 12px black;
-        }
-        .buy-btn:disabled {
-            opacity: 0.4;
-            transform: translateY(4px);
-            box-shadow: 0 3px 0 #0f3823;
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);
             pointer-events: none;
         }
-        .level-info {
-            background: #1f3d4e;
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+        }
+
+        .hero h1 {
+            font-size: 5.5rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #f5edea 0%, #d4a08a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 40px rgba(212, 160, 138, 0.15);
+            animation: fadeUp 1s ease;
+        }
+
+        .hero p {
             font-size: 1.3rem;
-            padding: 10px 20px;
-            border-radius: 3rem;
-            color: #cfecff;
-            border: 1px solid #528eb3;
+            color: #d4c4bc;
+            font-weight: 300;
+            letter-spacing: 2px;
+            animation: fadeUp 1s ease 0.2s both;
+        }
+
+        .hero .sub-line {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 2.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeUp 1s ease 0.4s both;
+        }
+
+        .hero .sub-line span {
+            color: #c9b8b0;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            padding: 0.3rem 1.2rem;
+            border: 1px solid rgba(255, 215, 200, 0.1);
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            color: rgba(255, 215, 200, 0.2);
+            font-size: 1.8rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-12px); }
+            60% { transform: translateX(-50%) translateY(-6px); }
+        }
+
+        /* ---------- ОСНОВНОЙ КОНТЕЙНЕР ---------- */
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 4rem 1.5rem 3rem;
+        }
+
+        /* ---------- СЕКЦИИ ---------- */
+        .section {
+            padding: 2rem 0 3rem;
+            border-bottom: 1px solid rgba(255, 215, 200, 0.04);
+        }
+
+        .section:last-of-type {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #f5edea;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(212, 160, 138, 0.2), transparent);
+        }
+
+        .section-sub {
+            color: #b5a49c;
+            font-size: 1rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ---------- КНОПКИ-КАТЕГОРИИ ---------- */
+        .category-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 0.7rem 2rem;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #c9b8b0;
+            background: rgba(30, 20, 22, 0.6);
+            border: 1px solid rgba(255, 215, 200, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+            letter-spacing: 0.3px;
+            font-family: inherit;
+        }
+
+        .category-btn:hover {
+            background: rgba(212, 160, 138, 0.1);
+            border-color: rgba(212, 160, 138, 0.2);
+            color: #f5edea;
+            transform: translateY(-2px);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, rgba(212, 160, 138, 0.2), rgba(232, 200, 184, 0.1));
+            border-color: rgba(212, 160, 138, 0.3);
+            color: #f5edea;
+            box-shadow: 0 4px 20px rgba(212, 160, 138, 0.1);
+        }
+
+        /* ---------- КОНТЕЙНЕРЫ ДЛЯ КАТЕГОРИЙ ---------- */
+        .category-container {
+            display: none;
+            animation: fadeSlide 0.5s ease;
+        }
+
+        .category-container.active {
+            display: block;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ---------- КАРТОЧКИ УСЛУГ ---------- */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .service-card {
+            background: rgba(30, 20, 22, 0.7);
+            backdrop-filter: blur(8px);
+            padding: 1.5rem 1.5rem 1.3rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 200, 0.06);
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 160, 138, 0.05) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .service-card:hover::before {
+            opacity: 1;
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(212, 160, 138, 0.15);
+            background: rgba(40, 28, 30, 0.8);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .service-card.expanded {
+            background: rgba(50, 35, 38, 0.9);
+            border-color: rgba(212, 160, 138, 0.3);
+            box-shadow: 0 16px 48px rgba(212, 160, 138, 0.08);
+            transform: translateY(-4px);
+        }
+
+        .service-card h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #f5edea;
+            margin-bottom: 0.2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .service-card .description {
+            font-size: 0.9rem;
+            color: #b5a49c;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .service-card .price {
+            display: inline-block;
+            background: linear-gradient(135deg, #2a1c1a, #1f1414);
+            color: #e8d3ca;
+            padding: 0.15rem 1.1rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(212, 160, 138, 0.12);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ---------- РАСКРЫВАЮЩАЯСЯ ЧАСТЬ ---------- */
+        .service-card .details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                        opacity 0.4s ease, 
+                        margin 0.4s ease;
+            opacity: 0;
+            margin-top: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .service-card.expanded .details {
+            max-height: 300px;
+            opacity: 1;
+            margin-top: 1rem;
+        }
+
+        .service-card .details p {
+            font-size: 0.9rem;
+            color: #d4c4bc;
+            padding: 0.6rem 0.8rem;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 12px;
+            border-left: 2px solid #d4a08a;
+            margin-bottom: 0.3rem;
+        }
+
+        .service-card .details .time {
+            color: #c9b8b0;
+            font-size: 0.85rem;
+            border-left-color: rgba(212, 160, 138, 0.3);
+        }
+
+        /* ---------- КНОПКА РАСКРЫТИЯ ---------- */
+        .service-card .toggle-btn {
+            display: inline-block;
+            margin-top: 0.8rem;
+            padding: 0.35rem 1.6rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #c9b8b0;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 215, 200, 0.1);
+            transition: 0.3s ease;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+            user-select: none;
+            font-family: inherit;
+        }
+
+        .service-card .toggle-btn:hover {
+            background: rgba(212, 160, 138, 0.15);
+            border-color: rgba(212, 160, 138, 0.25);
+            color: #f5edea;
+        }
+
+        .service-card.expanded .toggle-btn {
+            background: rgba(212, 160, 138, 0.12);
+            border-color: rgba(212, 160, 138, 0.2);
+            color: #f5edea;
+        }
+
+        /* ---------- КОМАНДА ---------- */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .team-card {
+            background: rgba(30, 20, 22, 0.6);
+            backdrop-filter: blur(8px);
+            padding: 1.8rem 0.8rem 1.4rem;
+            text-align: center;
+            border-radius: 24px 12px 24px 12px;
+            border: 1px solid rgba(255, 215, 200, 0.05);
+            transition: 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .team-card:hover {
+            transform: scale(1.02);
+            border-color: rgba(212, 160, 138, 0.2);
+            background: rgba(45, 30, 32, 0.75);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .team-card .avatar {
+            font-size: 3.2rem;
+            line-height: 1.2;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+        }
+
+        .team-card h4 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #f5edea;
+            margin: 0.3rem 0 0.05rem;
+        }
+
+        .team-card .role {
+            color: #d4b8ae;
+            font-weight: 500;
+            background: rgba(212, 160, 138, 0.1);
+            display: inline-block;
+            padding: 0.1rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            letter-spacing: 0.4px;
+            border: 1px solid rgba(212, 160, 138, 0.06);
+        }
+
+        .team-card .speciality {
+            font-size: 0.85rem;
+            color: #b5a49c;
+            margin-top: 0.4rem;
+        }
+
+        .colorist-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #6b3f34, #4f2c24);
+            color: #f0ded6;
+            padding: 0.3rem 1.6rem;
+            border-radius: 60px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(212, 160, 138, 0.15);
+            margin-top: 1.5rem;
+        }
+
+        /* ---------- ИНФОРМАЦИЯ ---------- */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 0.5rem;
+        }
+
+        .info-card {
+            background: rgba(30, 20, 22, 0.6);
+            backdrop-filter: blur(8px);
+            padding: 1.8rem 1.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 200, 0.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
             text-align: center;
         }
-        .footer-msg {
-            color: #8db4d0;
-            margin-top: 22px;
-            font-size: 1.2rem;
-            text-align: center;
+
+        .info-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card h4 {
+            color: #f5edea;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-card p {
+            color: #b5a49c;
+            font-size: 0.95rem;
+        }
+
+        .info-card .phone-link {
+            color: #e8c8b8;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: 0.3s ease;
+            display: inline-block;
+            padding: 0.3rem 0;
+        }
+
+        .info-card .phone-link:hover {
+            color: #f5edea;
+            transform: scale(1.05);
+        }
+
+        /* ---------- БОНУСЫ ---------- */
+        .bonus-box {
+            background: rgba(30, 20, 22, 0.5);
+            backdrop-filter: blur(8px);
+            padding: 1.5rem 2rem;
+            border-radius: 20px;
+            margin-top: 2rem;
+            border: 1px solid rgba(212, 160, 138, 0.08);
+            border-left: 4px solid #d4a08a;
+            color: #e0d2ca;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .bonus-box strong {
+            color: #f0e0d8;
+        }
+
+        .bonus-box .highlight {
+            color: #e8c8b8;
+        }
+
+        /* ---------- АДАПТИВ ---------- */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0.6rem 1.2rem;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .nav-links a {
+                font-size: 0.8rem;
+            }
+
+            .hero h1 {
+                font-size: 3.2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .hero .sub-line {
+                gap: 0.8rem;
+            }
+
+            .hero .sub-line span {
+                font-size: 0.8rem;
+                padding: 0.2rem 0.8rem;
+            }
+
+            .container {
+                padding: 2.5rem 1rem 2rem;
+            }
+
+            .section-title {
+                font-size: 1.7rem;
+                flex-wrap: wrap;
+            }
+            .section-title::after {
+                display: none;
+            }
+
+            .category-buttons {
+                justify-content: center;
+            }
+
+            .category-btn {
+                padding: 0.5rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2.4rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar .logo {
+                font-size: 1.1rem;
+            }
+
+            .nav-links {
+                gap: 0.7rem;
+            }
+
+            .nav-links a {
+                font-size: 0.7rem;
+            }
+
+            .service-card .toggle-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .category-btn {
+                width: 100%;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
-<div class="game-wrapper">
-    <!-- ресурсы и уровень -->
-    <div class="resources">
-        <div class="res-item">
-            💎 Монет <span id="coinDisplay">0</span>
-        </div>
-        <div class="level-badge" id="levelDisplay">
-            ⭐ УРОВЕНЬ 1
-        </div>
-        <div class="res-item">
-            👆 Кликов <span id="clickDisplay">0</span>
-        </div>
-    </div>
 
-    <!-- главная кнопка кликера -->
-    <div class="click-area">
-        <button class="click-btn" id="clickButton">👆 ТЫК</button>
-    </div>
+<!-- ===== НАВИГАЦИЯ ===== -->
+<nav class="navbar">
+    <a href="#hero" class="logo">✦ <span>Новая Я</span></a>
+    <ul class="nav-links">
+        <li><a href="#hero">Главная</a></li>
+        <li><a href="#services">Услуги</a></li>
+        <li><a href="#team">Команда</a></li>
+        <li><a href="#info">Информация</a></li>
+    </ul>
+</nav>
 
-    <!-- магазин и прокачка -->
-    <div class="shop-header">
-        <span>⚡ МАГАЗИН УЛУЧШЕНИЙ</span>
-        <span class="level-info" id="multiplierInfo">×1 за клик</span>
+<!-- ===== ГЛАВНЫЙ ЭКРАН ===== -->
+<section id="hero" class="hero">
+    <div class="hero-content">
+        <h1>Новая Я</h1>
+        <p>Парикмахерская &amp; Маникюрный салон</p>
+        <div class="sub-line">
+            <span>✂️ Стиль и уход</span>
+            <span>💅 Идеальный маникюр</span>
+            <span>✨ Индивидуальный подход</span>
+        </div>
     </div>
+    <div class="scroll-hint">⌄</div>
+</section>
 
-    <div class="upgrades-grid" id="shopContainer">
-        <!-- карточки будут сгенерированы через JS -->
-    </div>
-    <div class="footer-msg">
-        🚀 Каждый клик приносит монеты. Покупай усиления — ракета летит выше!
-    </div>
+<!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
+<div class="container">
+
+    <!-- УСЛУГИ -->
+    <section id="services" class="section">
+        <h2 class="section-title">💇 Услуги</h2>
+        <p class="section-sub">Выберите категорию и нажмите «Подробнее» на карточке</p>
+
+        <!-- КНОПКИ-КАТЕГОРИИ -->
+        <div class="category-buttons">
+            <button class="category-btn active" onclick="showCategory('haircuts')">✂️ Стрижки</button>
+            <button class="category-btn" onclick="showCategory('manicure')">💅 Маникюр</button>
+        </div>
+
+        <!-- СТРИЖКИ -->
+        <div id="haircuts" class="category-container active">
+            <div class="services-grid">
+                <div class="service-card">
+                    <h3>Мужская стрижка</h3>
+                    <div class="description">классическая, машинкой</div>
+                    <span class="price">от 1 500 ₽</span>
+                    <div class="details">
+                        <p>✂️ Включает мытьё головы, стрижку по вашей модели, укладку</p>
+                        <p class="time">⏱ Длительность: 45–60 мин</p>
+                    </div>
+                    <button class="toggle-btn" onclick="toggleCard(this)">Подробнее</button>
+                </div>
+
+                <div class="service-card">
+                    <h3>Женская стрижка</h3>
+                    <div class="description">модельная, удлинённая</div>
+                    <span class="price">от 2 200 ₽</span>
+                    <div class="details">
+                        <p>✂️ Стрижка с учётом типа волос, укладка феном или брашинг</p>
+                        <p class="time">⏱ Длительность: 60–90 мин</p>
+                    </div>
+                    <button class="toggle-btn" onclick="toggleCard(this)">Подробнее</button>
+                </div>
+
+                <div class="service-card">
+                    <h3>Окрашивание</h3>
+                    <div class="description">балаяж, шатуш, тонирование</div>
+                    <span class="price">от 3 500 ₽</span>
+                    <div class="details">
+                        <p>🎨 Профессиональные красители, индивидуальный подбор оттенка</p>
+                        <p class="time">⏱ Длительность: 2–3 часа</p>
+                    </div>
+                    <button class="toggle-btn" onclick="toggleCard(this)">Подробнее</button>
+                </div>
+
+                <div class="service-card">
+                    <h3>Укладка / прическа</h3>
+                    <div class="description">вечерняя, ежедневная</div>
+                    <span class="price">от 1 200 ₽</span>
+                    <div class="details">
+                        <p>💆‍♀️ Укладка феном, плойкой, создание объёма и текстуры</p>
+                        <p class="time">⏱ Длительность: 30–60 мин</p>
+                    </div>
+                    <button class="toggle-btn" onclick="toggleCard(this)">Подробнее</button>
+                </div>
+
+                <div class="service-card">
+                    <h3>Лечение волос</h3>
+                    <div class="description">ботокс, кератин, маски</div>
+                    <span class="price">от 2 800 ₽</span>
+                    <div class="details">
+                        <p>💊 Восстановление структуры, питание, блеск и гладкость</p>
+                        <p class="time">⏱ Длительность: 1.5–2 часа</p>
+                    </div>
+                    <button class="toggle-btn" onclick="toggleCard(this)">Подробнее</button>
+                </div>
+
+                <div class="service-card">
+                    <h3>Борода &amp; усы</h3>
+                    <div class="description">коррекция, моделирование</div>
+                    <span class="price">от 900 ₽</span>
+                    <div class="details">
+                        <p>🧔 Тримминг, контуринг, уход за кожей лица</p>
+                        <p class="time">⏱ Длительность: 30–45 мин</p>
+                    </div>
+                    <button class="toggle-btn" onclick="toggleCard(this)">Подробнее</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- МАНИКЮР -->
+        <div id="manicure" class="category-container">
+            <div class="services-grid">
+                <div class="service-card">
+                    <h3>Маникюр классический</h3>
+                    <div class="description">обрезной / необрезной</div>
+                    <span class="price">от 1 800 ₽</span>
+                    <div class="details">
+                        <p>💅 Обработка кутикулы, придание формы, покрытие базой</p>
+                        <p class="time">⏱ Длительность: 60–80 мин</p>
+                    </div>
+                    <button class="toggle-btn" onclick="toggleCard(this)">Подробнее</button>
+                </div>
+
+                <div class="service-card">
+                    <h3>Аппаратный маникюр</h3>
+                    <div class="description">без воды, комфортно</div>
+                    <span class="price">от 2 000 ₽</span>
+                    <div class="details">
+                        <p>🖨 Безопасная обработка фрезами, идеально для чувствительной кожи</p>
+                        <p class="time">⏱ Длительность: 60–80 мин</p>
+                    </div>
+                    <button class="toggle-btn" onclick="toggleCard(this)">Подробнее</button>
+                </div>
+
+                <div class="service-card">
+                    <h3>Гель-лак покрытие</h3>
+                    <div class="description">стойкое, глянец</div>
+                    <span class="price">от 2 500 ₽</span>
+                    <div class="details">
+                        <p>✨ Стойкость до 3 недель, богатая палитра цветов</p>
+                        <p class="time">⏱ Длительность: 1.5 часа</p>
+                    </div>
+                    <button class="toggle-btn" onclick="toggleCard(this)">Подробнее</button>
+                </div>
+
+                <div class="service-card">
+                    <h3>Дизайн ногтей</h3>
+                    <div class="description">рисунки, френч, градиент</div>
+                    <span class="price">от 900 ₽</span>
+                    <div class="details">
+                        <p>🎨 Художественная роспись, стразы, втирка, омбре</p>
+                        <p class="time">⏱ Длительность: от 30 мин</p>
+                    </div>
+                    <button class="toggle-btn" onclick="toggleCard(this)">Подробнее</button>
+                </div>
+
+                <div class="service-card">
+                    <h3>Парафинотерапия</h3>
+                    <div class="description">уход для рук</div>
+                    <span class="price">от 1 200 ₽</span>
+                    <div class="details">
+                        <p>🕯 Питательная процедура с парафином, омоложение кожи</p>
+                        <p class="time">⏱ Длительность: 30–40 мин</p>
+                    </div>
+                    <button class="toggle-btn" onclick="toggleCard(this)">Подробнее</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bonus-box">
+            <strong>🎁 Программа лояльности:</strong> <span class="highlight">10% бонусов</span> от каждой услуги.<br>
+            Оплата бонусами до 50% стоимости. Подарочные сертификаты.
+        </div>
+    </section>
+
+    <!-- КОМАНДА -->
+    <section id="team" class="section">
+        <h2 class="section-title">👥 Команда</h2>
+        <p class="section-sub">Наши профессионалы с многолетним опытом</p>
+
+        <div class="team-grid">
+            <div class="team-card">
+                <div class="avatar">💇‍♀️</div>
+                <h4>Анна</h4>
+                <div class="role">Парикмахер-колорист</div>
+                <div class="speciality">стаж 9 лет · окрашивание, каре</div>
+            </div>
+            <div class="team-card">
+                <div class="avatar">💇‍♂️</div>
+                <h4>Дмитрий</h4>
+                <div class="role">Парикмахер-колорист</div>
+                <div class="speciality">стаж 7 лет · мужские стрижки, борода</div>
+            </div>
+            <div class="team-card">
+                <div class="avatar">💅</div>
+                <h4>Елена</h4>
+                <div class="role">Мастер маникюра</div>
+                <div class="speciality">стаж 6 лет · дизайн, укрепление</div>
+            </div>
+            <div class="team-card">
+                <div class="avatar">💅</div>
+                <h4>Мария</h4>
+                <div class="role">Мастер маникюра</div>
+                <div class="speciality">стаж 5 лет · аппаратный, покрытия</div>
+            </div>
+        </div>
+
+        <div>
+            <span class="colorist-tag">⭐ Парикмахеры-колористы — эксперты по цвету</span>
+        </div>
+    </section>
+
+    <!-- ИНФОРМАЦИЯ -->
+    <section id="info" class="section">
+        <h2 class="section-title">ℹ️ Информация</h2>
+        <p class="section-sub">Всё, что нужно знать о салоне</p>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="icon">📞</div>
+                <h4>Телефон</h4>
+                <a href="tel:+79085993084" class="phone-link">+7 908 599 30 84</a>
+            </div>
+            <div class="info-card">
+                <div class="icon">🕐</div>
+                <h4>Режим работы</h4>
+                <p>Пн–Вс: 10:00 – 21:00</p>
+            </div>
+            <div class="info-card">
+                <div class="icon">📍</div>
+                <h4>Адрес</h4>
+                <p>г. Москва, ул. Примерная, д. 10</p>
+            </div>
+        </div>
+
+        <div class="bonus-box">
+            <strong>✨ О салоне:</strong> Мы создаём образы, которые вдохновляют. Используем премиальную косметику, следим за трендами и любим свою работу.
+        </div>
+    </section>
+
 </div>
 
+<!-- ===== JAVASCRIPT ===== -->
 <script>
-    (function() {
-        // ---------- СОСТОЯНИЕ ИГРОКА ----------
-        let coins = 0;              // монеты
-        let totalClicks = 0;        // всего совершено кликов (для уровня)
-        let clickPower = 1;         // базовая монета за клик (может увеличиваться от улучшений)
-
-        // Множитель от уровня (уровень рассчитывается от количества кликов)
-        let currentLevel = 1;
-        const clicksForNextLevel = [0, 10, 30, 70, 150, 300, 600, 1200, 2500, 5000]; // уровень 1: 0-9, 2:10-29 и т.д.
-
-        // ---------- УЛУЧШЕНИЯ (МАГАЗИН) ----------
-        const upgrades = [
-            { id: 'cursor', name: '🖱️ Курсор', desc: '➕1 к монете за клик', baseCost: 15, costMultiplier: 1.8, stat: 'clickPower', value: 1, count: 0 },
-            { id: 'pickaxe', name: '⛏️ Кирка', desc: '➕3 к монете за клик', baseCost: 50, costMultiplier: 1.9, stat: 'clickPower', value: 3, count: 0 },
-            { id: 'drill', name: '🪨 Дрель', desc: '➕8 за клик', baseCost: 180, costMultiplier: 2.0, stat: 'clickPower', value: 8, count: 0 },
-            { id: 'robot', name: '🤖 Робот', desc: '➕20 за клик', baseCost: 600, costMultiplier: 2.2, stat: 'clickPower', value: 20, count: 0 }
-        ];
-
-        // ссылки на DOM
-        const coinDisplay = document.getElementById('coinDisplay');
-        const clickDisplay = document.getElementById('clickDisplay');
-        const levelDisplay = document.getElementById('levelDisplay');
-        const multiplierInfo = document.getElementById('multiplierInfo');
-        const clickButton = document.getElementById('clickButton');
-        const shopContainer = document.getElementById('shopContainer');
-
-        // отрисовка карточек магазина
-        function renderShop() {
-            shopContainer.innerHTML = ''; // очистить
-            upgrades.forEach((up, index) => {
-                const card = document.createElement('div');
-                card.className = 'upgrade-card';
-
-                // текущая стоимость
-                const cost = Math.floor(up.baseCost * Math.pow(up.costMultiplier, up.count));
-
-                // заголовок и описание
-                card.innerHTML = `
-                    <h3>${up.name}</h3>
-                    <div class="upgrade-desc">${up.desc}</div>
-                    <div class="stat-row">
-                        <span>📊 ур. ${up.count}</span>
-                        <span>💰 ${cost}</span>
-                    </div>
-                    <button class="buy-btn" data-index="${index}">Купить</button>
-                `;
-                shopContainer.appendChild(card);
-            });
-
-            // навесить обработчики на кнопки "Купить"
-            document.querySelectorAll('.buy-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idx = e.target.getAttribute('data-index');
-                    if (idx !== null) buyUpgrade(parseInt(idx));
-                });
-            });
-
-            // обновить активность кнопок (блокировка если не хватает монет)
-            updateBuyButtonsState();
-        }
-
-        // обновить доступность кнопок покупки
-        function updateBuyButtonsState() {
-            document.querySelectorAll('.buy-btn').forEach((btn, i) => {
-                const up = upgrades[i];
-                if (!up) return;
-                const cost = Math.floor(up.baseCost * Math.pow(up.costMultiplier, up.count));
-                if (coins < cost) {
-                    btn.disabled = true;
-                } else {
-                    btn.disabled = false;
-                }
-            });
-        }
-
-        // покупка улучшения
-        function buyUpgrade(index) {
-            const up = upgrades[index];
-            const cost = Math.floor(up.baseCost * Math.pow(up.costMultiplier, up.count));
-            if (coins < cost) return;
-
-            // списываем монеты
-            coins -= cost;
-            // увеличиваем счетчик улучшения
-            up.count += 1;
-
-            // применяем эффект в зависимости от stat
-            if (up.stat === 'clickPower') {
-                clickPower += up.value;
-            }
-
-            // обновить интерфейс
-            updateUI();
-            renderShop();          // перерисовать магазин (цены изменятся, кол-во)
-        }
-
-        // функция для расчета уровня на основе кликов
-        function calculateLevel(clicks) {
-            let lvl = 1;
-            for (let i = 1; i < clicksForNextLevel.length; i++) {
-                if (clicks >= clicksForNextLevel[i]) {
-                    lvl = i + 1;
-                } else {
-                    break;
-                }
-            }
-            return lvl;
-        }
-
-        // вызывается при любом изменении денег/кликов/уровня
-        function updateUI() {
-            coinDisplay.textContent = coins;
-            clickDisplay.textContent = totalClicks;
-
-            // уровень
-            const newLevel = calculateLevel(totalClicks);
-            if (newLevel !== currentLevel) {
-                currentLevel = newLevel;
-                // можно добавить бонус за уровень, но оставим просто престиж
-            }
-            levelDisplay.innerHTML = `⭐ УРОВЕНЬ ${currentLevel}`;
-
-            // множитель (сколько монет за клик)
-            multiplierInfo.innerText = `×${clickPower} за клик`;
-
-            // активировать/деактивировать кнопки магазина
-            updateBuyButtonsState();
-        }
-
-        // клик по главной кнопке
-        function handleClick() {
-            // 1) зарабатываем монеты (clickPower)
-            coins += clickPower;
-            // 2) увеличиваем общее число кликов
-            totalClicks++;
-
-            // проверка на уровень (апнули уровень?)
-            const oldLevel = currentLevel;
-            const newLevel = calculateLevel(totalClicks);
-            if (newLevel > oldLevel) {
-                // можно дать награду, например +10 монет за каждый новый уровень (бонус)
-                coins += 10 * (newLevel - oldLevel);  // скромный бонус
-            }
-
-            // обновляем UI
-            updateUI();
-
-            // маленькая вибро-отдача на мобильных (не обязательно)
-        }
-
-        // стартовая инициализация и подгрузка
-        function initGame() {
-            // начальные значения (можно изменить для баланса)
-            coins = 5;          // стартовый капитал
-            totalClicks = 0;
-            clickPower = 1;     // базовая единица
-            upgrades.forEach(u => u.count = 0); // сброс прокачки
-
-            renderShop();
-            updateUI();
-
-            // обработчик клика
-            clickButton.addEventListener('click', handleClick);
-            // для мобильных touch
-            clickButton.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                handleClick();
-            });
-        }
-
-        // дополнительно: обновление состояния кнопок после перерисовки магазина уже есть в renderShop
-
-        // запуск
-        initGame();
-
-        // вспомогательный пересчет при изменении монет из вне (нет, только через клик и покупки)
-        // но после покупки мы вызываем renderShop и updateUI
-        // небольшой фикс: после покупки updateUI уже вызывается в buyUpgrade, а renderShop вызывает updateBuyButtonsState внутри себя.
-
-        // добавим функцию-хелпер для обновления баланса при покупке уже есть
-
-        // дополнительно: защита от двойного клика на мобильных
-        let clickInProgress = false;
-        const originalHandler = handleClick;
-        handleClick = function() {
-            if (clickInProgress) return;
-            clickInProgress = true;
-            originalHandler();
-            setTimeout(() => clickInProgress = false, 200);
-        };
-
-        // перезаписываем обработчик
-        clickButton.removeEventListener('click', handleClick);
-        clickButton.addEventListener('click', handleClick);
-        // touch события тоже
-        clickButton.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            if (clickInProgress) return;
-            clickInProgress = true;
-            originalHandler();
-            setTimeout(() => clickInProgress = false, 200);
+    // ----- ПЕРЕКЛЮЧЕНИЕ КАТЕГОРИЙ (СТРИЖКИ / МАНИКЮР) -----
+    function showCategory(categoryId) {
+        // Скрываем все категории
+        document.querySelectorAll('.category-container').forEach(container => {
+            container.classList.remove('active');
         });
+        
+        // Показываем выбранную
+        const target = document.getElementById(categoryId);
+        if (target) {
+            target.classList.add('active');
+        }
+        
+        // Обновляем активную кнопку
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Находим кнопку, которая соответствует категории
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            if (btn.textContent.includes('Стрижки') && categoryId === 'haircuts') {
+                btn.classList.add('active');
+            }
+            if (btn.textContent.includes('Маникюр') && categoryId === 'manicure') {
+                btn.classList.add('active');
+            }
+        });
+    }
 
-    })();
+    // ----- РАСКРЫТИЕ КАРТОЧЕК ПО КНОПКЕ -----
+    function toggleCard(button) {
+        const card = button.closest('.service-card');
+        card.classList.toggle('expanded');
+        button.textContent = card.classList.contains('expanded') ? 'Скрыть' : 'Подробнее';
+    }
+
+    // ----- ПЛАВНАЯ ПРОКРУТКА ДЛЯ НАВИГАЦИИ -----
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                const navHeight = document.querySelector('.navbar').offsetHeight;
+                const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navHeight;
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+
+    // ----- АКТИВНЫЙ ПУНКТ МЕНЮ ПРИ СКРОЛЛЕ -----
+    window.addEventListener('scroll', function() {
+        const navLinks = document.querySelectorAll('.nav-links a');
+        const sections = document.querySelectorAll('.hero, .section');
+        const navHeight = document.querySelector('.navbar').offsetHeight;
+        
+        let currentSection = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - navHeight - 100;
+            if (window.pageYOffset >= sectionTop) {
+                currentSection = section.getAttribute('id');
+            }
+        });
+        
+        navLinks.forEach(link => {
+            link.style.color = '#c9b8b0';
+            if (link.getAttribute('href') === '#' + currentSection) {
+                link.style.color = '#f5edea';
+            }
+        });
+    });
 </script>
+
 </body>
 </html>
